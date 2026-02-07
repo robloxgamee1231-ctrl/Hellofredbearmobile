@@ -3,101 +3,95 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello Freddy: Mobile Alpha</title>
+    <title>Hello Freddy Prototype</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
         /* Professional UI Overlay */
-        #ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
-        .btn { 
-            pointer-events: auto; position: absolute; bottom: 30px; right: 30px;
-            width: 80px; height: 80px; background: rgba(0,0,0,0.7); 
-            border: 3px solid #ffcc00; border-radius: 50%; color: white;
-            display: flex; align-items: center; justify-content: center; font-weight: bold;
-        }
-        #start-screen {
+        #start-menu {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #111; z-index: 999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; pointer-events: auto;
+            background: #111; z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: white;
         }
-        #play-btn {
-            padding: 20px 60px; font-size: 24px; background: #ffcc00; 
-            border: none; border-radius: 50px; font-weight: bold; cursor: pointer;
-        }
+        #play-btn { padding: 20px 60px; font-size: 28px; background: #ffcc00; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; color: black; }
+        .hud { position: fixed; bottom: 30px; right: 30px; z-index: 1000; display: none; }
+        .btn { width: 80px; height: 80px; background: rgba(0,0,0,0.7); border: 3px solid #ffcc00; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; }
     </style>
 </head>
 <body>
 
-    <div id="start-screen">
-        <h1 style="color: #ffcc00; margin-bottom: 20px;">HELLO FREDDY</h1>
-        <button id="play-btn" onclick="startGame()">PLAY PROTOTYPE</button>
+    <div id="start-menu">
+        <h1 style="color: #ffcc00;">HELLO FREDDY</h1>
+        <p style="color: #666; margin-bottom: 20px;">v1.0 Pro Mobile Build</p>
+        <button id="play-btn" onclick="initGame()">PLAY NOW</button>
     </div>
 
-    <div id="ui-layer">
-        <div class="btn" onclick="toggleFlashlight()">LIGHT</div>
+    <div class="hud" id="hud">
+        <div class="btn" onclick="toggleFlash()">LIGHT</div>
     </div>
 
-    <a-scene xr-mode-ui="enabled: false" embedded shadow="type: pcf">
-        
+    <a-scene xr-mode-ui="enabled: false" embedded>
         <a-assets>
             <img id="freddyFace" src="https://i.imgur.com/3YpX7D6.png">
         </a-assets>
 
-        <a-sky color="#050505"></a-sky>
-        <a-light type="ambient" intensity="0.5"></a-light>
-        <a-plane position="0 0.01 0" rotation="-90 0 0" width="100" height="100" color="#222"></a-plane>
+        <a-sky color="#87CEEB"></a-sky> <a-light type="ambient" intensity="0.8"></a-light>
+        <a-light type="directional" intensity="0.8" position="-1 10 1"></a-light>
 
-        <a-entity position="0 0 -10">
-            <a-box position="0 3 -5" width="16" height="6" depth="0.5" color="#4a301d"></a-box>
-            <a-box position="-8 3 0" rotation="0 90 0" width="10" height="6" depth="0.5" color="#4a301d"></a-box>
-            <a-box position="8 3 0" rotation="0 90 0" width="10" height="6" depth="0.5" color="#4a301d"></a-box>
+        <a-plane position="0 0 0" rotation="-90 0 0" width="100" height="100" color="#333"></a-plane>
+
+        <a-entity position="0 0 -15">
+            <a-box position="0 3 -5" width="15" height="6" depth="0.5" color="#4a301d"></a-box>
+            <a-box position="-7.5 3 2.5" rotation="0 90 0" width="15" height="6" depth="0.5" color="#4a301d"></a-box>
+            <a-box position="7.5 3 2.5" rotation="0 90 0" width="15" height="6" depth="0.5" color="#4a301d"></a-box>
         </a-entity>
 
-        <a-entity id="rig" movement-controls="controls: joystick; speed: 0.2" position="0 0 15">
+        <a-entity id="rig" movement-controls="controls: joystick; speed: 0.25" position="0 0 30">
             <a-entity id="camera" camera position="0 1.6 0" look-controls="touchEnabled: true">
-                <a-cylinder position="-0.4 -0.5 -0.7" rotation="90 0 20" radius="0.08" height="0.8" color="#f1c27d"></a-cylinder>
-                <a-cylinder position="0.4 -0.5 -0.7" rotation="90 0 -20" radius="0.08" height="0.8" color="#f1c27d"></a-cylinder>
-                <a-entity id="beam" light="type: spot; intensity: 0; distance: 25; angle: 45"></a-entity>
+                <a-cylinder position="-0.4 -0.5 -0.6" rotation="90 0 20" radius="0.08" height="0.8" color="#f1c27d"></a-cylinder>
+                <a-cylinder position="0.4 -0.5 -0.6" rotation="90 0 -20" radius="0.08" height="0.8" color="#f1c27d"></a-cylinder>
+                <a-entity id="flashlight" light="type: spot; intensity: 0; distance: 30; angle: 45"></a-entity>
             </a-entity>
         </a-entity>
 
-        <a-sphere id="freddy" src="#freddyFace" position="0 1.5 -8" radius="1.4">
-            <a-entity light="type: point; color: red; intensity: 1.5" position="0 0 1"></a-entity>
+        <a-sphere id="freddy" src="#freddyFace" position="0 1.5 -10" radius="1.5">
+            <a-entity light="type: point; color: red; intensity: 2" position="0 0 1"></a-entity>
         </a-sphere>
 
     </a-scene>
 
     <script>
-        let gameActive = false;
+        let isPlaying = false;
         let lightOn = false;
 
-        function startGame() {
-            document.getElementById('start-screen').style.display = 'none';
-            gameActive = true;
-            // Wakes up the 3D engine
-            document.querySelector('a-scene').play();
+        function initGame() {
+            document.getElementById('start-menu').style.display = 'none';
+            document.getElementById('hud').style.display = 'block';
+            isPlaying = true;
+            // Force 3D scene to refresh
+            document.querySelector('a-scene').style.display = 'block';
         }
 
-        function toggleFlashlight() {
+        function toggleFlash() {
             lightOn = !lightOn;
-            document.querySelector('#beam').setAttribute('light', 'intensity', lightOn ? 2.5 : 0);
+            document.querySelector('#flashlight').setAttribute('light', 'intensity', lightOn ? 3 : 0);
         }
 
-        // Neighbor AI
+        // Improved Chase AI
         setInterval(() => {
-            if (!gameActive) return;
+            if (!isPlaying) return; // Freddy stays frozen until you hit play!
 
             const freddy = document.querySelector('#freddy').object3D.position;
-            const rig = document.querySelector('#rig').object3D.position;
-            const speed = 0.05;
+            const rigPos = document.querySelector('#rig').object3D.position;
+            const speed = 0.06;
 
-            if (freddy.x < rig.x) freddy.x += speed; else freddy.x -= speed;
-            if (freddy.z < rig.z) freddy.z += speed; else freddy.z -= speed;
+            if (freddy.x < rigPos.x) freddy.x += speed; else freddy.x -= speed;
+            if (freddy.z < rigPos.z) freddy.z += speed; else freddy.z -= speed;
 
-            // Catch distance
-            let dist = Math.sqrt(Math.pow(freddy.x - rig.x, 2) + Math.pow(freddy.z - rig.z, 2));
-            if (dist < 2) {
+            // Distance Check
+            let d = Math.sqrt(Math.pow(freddy.x - rigPos.x, 2) + Math.pow(freddy.z - rigPos.z, 2));
+            if (d < 2.5) {
                 alert("THE NEIGHBOR CAUGHT YOU!");
                 location.reload();
             }
