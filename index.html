@@ -1,58 +1,68 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hello Freddy Mobile</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-  </head>
-  <body>
-    <a-scene vr-mode-ui="enabled: false" physics="debug: false">
-      
-      <a-assets>
-        <img id="freddyFace" src="https://i.imgur.com/3YpX7D6.png"> <img id="wallTexture" src="https://i.imgur.com/mYy9p79.jpeg"> </a-assets>
+</head>
+<body style="margin: 0; overflow: hidden; background-color: #000;">
 
-      <a-plane position="0 0 0" rotation="-90 0 0" width="50" height="50" color="#222" static-body></a-plane>
-      
-      <a-box position="0 2.5 -5" width="4" height="5" depth="0.5" color="#5a3a22" static-body></a-box>
-      <a-box position="6 2.5 -5" width="8" height="5" depth="0.5" color="#5a3a22" static-body></a-box>
-      
-      <a-box position="-10 2.5 0" rotation="0 90 0" width="10" height="5" depth="0.5" color="#5a3a22" static-body></a-box>
-      <a-box position="10 2.5 0" rotation="0 90 0" width="10" height="5" depth="0.5" color="#5a3a22" static-body></a-box>
+    <a-scene vr-mode-ui="enabled: false" embedded ar-mode-ui="enabled: false" physics="debug: false">
+        
+        <a-assets>
+            <img id="freddyTexture" src="https://i.imgur.com/3YpX7D6.png">
+        </a-assets>
 
-      <a-box position="-5 2.5 -2" width="0.5" height="5" depth="6" color="#7d5a3c" static-body></a-box>
-
-      <a-entity id="rig" movement-controls="controls: joystick; speed: 0.3" position="0 0 5">
-        <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true">
-            <a-entity light="type: spot; intensity: 1.5; distance: 15; angle: 45" position="0 0 0"></a-entity>
+        <a-plane position="0 0 0" rotation="-90 0 0" width="100" height="100" color="#111"></a-plane> <a-box position="0 2.5 -5" width="10" height="5" depth="0.5" color="#4a2a12"></a-box> <a-box position="-5 2.5 0" rotation="0 90 0" width="10" height="5" depth="0.5" color="#4a2a12"></a-box> <a-box position="5 2.5 0" rotation="0 90 0" width="10" height="5" depth="0.5" color="#4a2a12"></a-box> <a-box position="0 5 0" width="10" height="0.5" depth="10" color="#333"></a-box> <a-box position="0 2.5 -2" width="0.5" height="5" depth="6" color="#333"></a-box> <a-entity id="rig" movement-controls="controls: joystick; speed: 0.2" position="0 0 4">
+            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true; touchEnabled: true">
+                <a-entity light="type: spot; intensity: 2; distance: 15; angle: 40" position="0 0 0"></a-entity>
+            </a-entity>
         </a-entity>
-      </a-entity>
 
-      <a-sphere id="freddy" src="#freddyFace" position="5 1.5 -8" radius="1.5" dynamic-body>
-        <a-entity light="type: point; color: red; intensity: 1" position="0 0 0"></a-entity>
-      </a-sphere>
+        <a-sphere id="freddy" src="#freddyTexture" position="3 1.2 -8" radius="1.2">
+            <a-entity light="type: point; color: red; intensity: 1" position="0 0 0"></a-entity>
+        </a-sphere>
 
-      <a-sky color="#050505"></a-sky> </a-scene>
+        <a-sky color="#050505"></a-sky>
+
+    </a-scene>
 
     <script>
-      // NEIGHBOR AI SYSTEM
-      setInterval(() => {
-        const freddy = document.querySelector('#freddy').object3D.position;
-        const player = document.querySelector('[camera]').getWorldPosition(new THREE.Vector3());
+        // FREDDY CHASE LOGIC
+        setInterval(() => {
+            const freddy = document.querySelector('#freddy').object3D.position;
+            const player = document.querySelector('[camera]').getWorldPosition(new THREE.Vector3());
+            
+            // Speed (0.05 is normal, 0.15 is Super Fast YouTube Mod speed)
+            const speed = 0.05;
 
-        // Speed of the Neighbor (Change to 0.1 for SUPER FAST)
-        const speed = 0.06; 
+            // Move toward player
+            if (freddy.x < player.x) freddy.x += speed; else freddy.x -= speed;
+            if (freddy.z < player.z) freddy.z += speed; else freddy.z -= speed;
 
-        // Move Freddy toward the Player
-        if (freddy.x < player.x) freddy.x += speed; else freddy.x -= speed;
-        if (freddy.z < player.z) freddy.z += speed; else freddy.z -= speed;
+            // JUMPSCARE IF CAUGHT
+            let dist = Math.sqrt(Math.pow(freddy.x - player.x, 2) + Math.pow(freddy.z - player.z, 2));
+            if (dist < 1.8) {
+                // This replaces the "VR" look with a simple message
+                alert("FREDDY CAUGHT YOU!");
+                location.reload(); 
+            }
+        }, 50);
 
-        // CATCH LOGIC (Jumpscare)
-        let distance = Math.sqrt(Math.pow(freddy.x - player.x, 2) + Math.pow(freddy.z - player.z, 2));
-        if (distance < 2) {
-          alert("FREDDY CAUGHT YOU!"); // Simple jumpscare for now
-          location.reload(); // Restarts the game
-        }
-      }, 50);
+        // EXTRA FIX: Force VR button to stay hidden
+        window.addEventListener('load', function () {
+           var scene = document.querySelector('a-scene');
+           if (scene.hasLoaded) {
+               removeVR();
+           } else {
+               scene.addEventListener('loaded', removeVR);
+           }
+           function removeVR() {
+               scene.setAttribute('vr-mode-ui', 'enabled', false);
+           }
+        });
     </script>
-  </body>
+</body>
 </html>
