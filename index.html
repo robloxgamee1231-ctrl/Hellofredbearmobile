@@ -1,105 +1,171 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello Neighbor: Fair Play Edition</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-    <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
-        #boot-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #111; z-index: 9999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; color: white;
-        }
-        #play-btn { 
-            padding: 20px 60px; font-size: 24px; background: #ffcc00; border: none; 
-            border-radius: 10px; cursor: pointer; color: black; font-weight: bold;
-        }
-        #timer-msg { color: #00ff00; margin-top: 10px; font-weight: bold; display: none; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Fair Play Stealth Game</title>
+
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+<style>
+body { margin:0; overflow:hidden; background:black; font-family:sans-serif; }
+#boot {
+  position:fixed; inset:0; background:#111; color:white;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:9999;
+}
+button {
+  padding:18px 40px; font-size:20px; border:none; border-radius:10px;
+  background:#ffcc00; font-weight:bold;
+}
+#flashBtn {
+  position:fixed; bottom:20px; right:20px; z-index:10;
+  padding:14px 20px; border-radius:10px; border:none;
+  background:#222; color:white;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="boot-screen">
-        <h1 style="color: #ffcc00;">HELLO NEIGHBOR</h1>
-        <button id="play-btn" onclick="enterGame()">START GAME</button>
-        <div id="timer-msg">GRACE PERIOD ACTIVE: YOU ARE SAFE</div>
-    </div>
+<div id="boot">
+<h1>FAIR PLAY STEALTH</h1>
+<button onclick="startGame()">START</button>
+</div>
 
-    <a-scene xr-mode-ui="enabled: false" embedded shadow="type: basic">
-        
-        <a-assets>
-            <img id="grassTex" src="https://i.imgur.com/v5fS09X.png">
-        </a-assets>
+<button id="flashBtn" onclick="toggleFlash()">FLASHLIGHT</button>
 
-        <a-sky color="#87CEEB"></a-sky>
-        <a-light type="ambient" intensity="0.8"></a-light>
-        <a-light type="directional" intensity="0.5" position="-1 10 2"></a-light>
-        <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" src="#grassTex" repeat="50 50"></a-plane>
+<a-scene embedded shadow="type:basic">
 
-        <a-entity id="neighbor-house" position="15 0 -10">
-            <a-box position="0 4 0" width="15" height="8" depth="15" color="#4a301d"></a-box>
-            <a-box position="0 10 0" width="10" height="6" depth="10" color="#3d2b1f"></a-box>
-        </a-entity>
+<a-assets>
+<audio id="step" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4c4c8f7c6f.mp3"></audio>
+</a-assets>
 
-        <a-entity id="rig" movement-controls="controls: keyboard, joystick; speed: 0.2" position="0 0 25">
-            <a-entity id="camera" camera position="0 1.6 0" look-controls="pointerLockEnabled: true">
-                <a-sphere position="-0.4 -0.4 -0.6" radius="0.08" color="#f1c27d">
-                    <a-box position="0 0 -0.1" width="0.1" height="0.05" depth="0.2" color="#ffff00"></a-box>
-                </a-sphere>
-                <a-sphere position="0.4 -0.4 -0.6" radius="0.08" color="#f1c27d">
-                    <a-box position="0 0 -0.1" width="0.1" height="0.05" depth="0.2" color="#ffff00"></a-box>
-                </a-sphere>
-            </a-entity>
-        </a-entity>
+<a-sky color="#87CEEB"></a-sky>
+<a-plane rotation="-90 0 0" width="200" height="200" color="#4caf50"></a-plane>
 
-        <a-entity id="neighbor" position="15 0 -2">
-            <a-box position="0 1 0" width="0.6" height="2" color="purple"></a-box>
-            <a-sphere position="0 2.2 0" radius="0.35" color="#f1c27d"></a-sphere>
-            <a-entity light="type: point; color: red; intensity: 1.5; distance: 5" position="0 2 0.5"></a-entity>
-        </a-entity>
+<!-- House -->
+<a-box position="15 4 -10" width="15" height="8" depth="15" color="#4a301d"></a-box>
+<a-box position="15 9 -10" width="10" height="6" depth="10" color="#3d2b1f"></a-box>
 
-    </a-scene>
+<!-- Player -->
+<a-entity id="rig" movement-controls="speed:0.18" position="0 0 20">
+<a-entity camera look-controls position="0 1.6 0">
 
-    <script>
-        let isStarted = false;
-        let gracePeriod = true;
+<!-- Flashlight -->
+<a-entity id="flashlight"
+light="type:spot; intensity:0; distance:18; angle:25; penumbra:0.3"
+position="0 0 0"></a-entity>
 
-        function enterGame() {
-            document.getElementById('boot-screen').style.display = 'none';
-            isStarted = true;
-            document.querySelector('a-scene').play();
-            document.body.requestPointerLock();
+</a-entity>
+</a-entity>
 
-            // 5 second grace period where you can't be caught
-            setTimeout(() => {
-                gracePeriod = false;
-            }, 5000);
-        }
+<!-- Neighbor -->
+<a-entity id="neighbor" position="15 0 -2">
 
-        setInterval(() => {
-            if (!isStarted) return;
+<a-box position="0 1 0" width="0.6" height="2" color="purple"></a-box>
+<a-sphere position="0 2.2 0" radius="0.35" color="#f1c27d"></a-sphere>
 
-            const neighbor = document.querySelector('#neighbor').object3D.position;
-            const rig = document.querySelector('#rig').object3D.position;
-            
-            // Neighbor moves a bit slower now (0.04 instead of 0.05)
-            const speed = 0.04;
+<!-- Face -->
+<a-plane id="face" position="0 2.4 0.36" width="0.5" height="0.5" color="white"></a-plane>
+<a-text id="faceText" value=":|" align="center" color="black" position="0 2.4 0.37"></a-text>
 
-            if (neighbor.x < rig.x) neighbor.x += speed; else neighbor.x -= speed;
-            if (neighbor.z < rig.z) neighbor.z += speed; else neighbor.z -= speed;
+</a-entity>
 
-            // Catch Logic
-            let dist = Math.sqrt(Math.pow(neighbor.x - rig.x, 2) + Math.pow(neighbor.z - rig.z, 2));
-            
-            // Only trigger if grace period is OVER
-            if (!gracePeriod && dist < 2.5) {
-                alert("THE NEIGHBOR CAUGHT YOU!");
-                location.reload();
-            }
-        }, 50);
-    </script>
+</a-scene>
+
+<script>
+let started=false;
+let flashlightOn=false;
+
+let neighbor, rig, faceText, flashlight, stepSound;
+
+let state="patrol";
+let patrolTarget={x:15,z:-2};
+let lastPlayerPos={x:0,z:0};
+
+function startGame(){
+document.getElementById("boot").style.display="none";
+started=true;
+
+neighbor=document.querySelector("#neighbor");
+rig=document.querySelector("#rig");
+faceText=document.querySelector("#faceText");
+flashlight=document.querySelector("#flashlight");
+stepSound=document.querySelector("#step");
+}
+
+function toggleFlash(){
+flashlightOn=!flashlightOn;
+flashlight.setAttribute("light","intensity",flashlightOn?2:0);
+}
+
+/* KEY FLASHLIGHT */
+document.addEventListener("keydown",e=>{
+if(e.key.toLowerCase()==="f") toggleFlash();
+});
+
+/* GAME LOOP */
+setInterval(()=>{
+
+if(!started) return;
+
+let n=neighbor.object3D.position;
+let p=rig.object3D.position;
+
+let dx=p.x-n.x;
+let dz=p.z-n.z;
+let dist=Math.sqrt(dx*dx+dz*dz);
+
+/* FOOTSTEP SOUND */
+if(Math.random()<0.05 && dist<12){
+stepSound.currentTime=0;
+stepSound.play();
+state="search";
+lastPlayerPos={x:p.x,z:p.z};
+}
+
+/* AI STATES */
+if(dist<6){
+state="chase";
+}
+
+if(state==="patrol"){
+faceText.setAttribute("value",":|");
+moveTo(patrolTarget,0.02);
+}
+
+else if(state==="search"){
+faceText.setAttribute("value",":/");
+moveTo(lastPlayerPos,0.025);
+if(dist<3) state="chase";
+}
+
+else if(state==="chase"){
+faceText.setAttribute("value",">:(");
+moveTo({x:p.x,z:p.z},0.035);
+}
+
+/* CATCH */
+if(dist<1.8){
+alert("CAUGHT!");
+location.reload();
+}
+
+},60);
+
+function moveTo(target,speed){
+let pos=neighbor.object3D.position;
+let dx=target.x-pos.x;
+let dz=target.z-pos.z;
+let d=Math.sqrt(dx*dx+dz*dz);
+if(d>0.1){
+pos.x+=(dx/d)*speed;
+pos.z+=(dz/d)*speed;
+}
+}
+</script>
+
 </body>
 </html>
