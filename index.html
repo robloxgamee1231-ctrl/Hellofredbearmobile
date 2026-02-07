@@ -3,77 +3,133 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello Freddy: Mobile Edition</title>
+    <title>Hello Freddy Master Prototype</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <style>
+        /* Mobile HUD Styles */
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        .hud { position: fixed; z-index: 100; pointer-events: none; width: 100%; height: 100%; }
+        .controls-right { position: absolute; bottom: 20px; right: 20px; pointer-events: auto; display: flex; flex-direction: column; gap: 15px; }
+        .btn { width: 70px; height: 70px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.6); background: rgba(0,0,0,0.4); color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .admin-label { position: absolute; top: 10px; right: 10px; pointer-events: auto; background: rgba(255,0,0,0.3); color: white; padding: 5px 10px; border: none; font-size: 10px; }
+        #inventory { position: absolute; top: 10px; left: 10px; color: yellow; font-weight: bold; }
+    </style>
 </head>
-<body style="margin: 0; overflow: hidden; background: #000;">
+<body>
 
-    <a-scene xr-mode-ui="enabled: false" embedded loading-screen="dotsColor: red; backgroundColor: black">
-        
+    <div class="hud">
+        <div id="inventory">Items: None</div>
+        <button class="admin-label" onclick="openAdmin()">ADMIN (1234)</button>
+        <div class="controls-right">
+            <div class="btn" onclick="toggleRun()" id="runBtn">WALK</div>
+            <div class="btn" onclick="toggleCrouch()" id="crouchBtn">CROUCH</div>
+            <div class="btn" onclick="toggleLight()">LIGHT</div>
+        </div>
+    </div>
+
+    <a-scene xr-mode-ui="enabled: false" embedded>
         <a-assets>
-            <img id="floorTex" src="https://i.imgur.com/2mP7Y78.jpeg">
             <img id="freddyFace" src="https://i.imgur.com/3YpX7D6.png">
+            <img id="wood" src="https://i.imgur.com/mYy9p79.jpeg">
         </a-assets>
 
         <a-sky color="#020202"></a-sky>
-        <a-plane position="0 0 0" rotation="-90 0 0" width="100" height="100" src="#floorTex" repeat="20 20"></a-plane>
-        <a-light type="ambient" intensity="0.2" color="#444"></a-light>
+        <a-light type="ambient" intensity="0.2"></a-light>
+        <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#111"></a-plane>
 
-        <a-box position="0 2.5 -5" width="12" height="5" depth="0.5" color="#5a3a22"></a-box> <a-box position="-6 2.5 5" width="0.5" height="5" depth="20" color="#5a3a22"></a-box> <a-box position="6 2.5 5" width="0.5" height="5" depth="20" color="#5a3a22"></a-box> <a-box position="0 2.5 15" width="12" height="5" depth="0.5" color="#5a3a22"></a-box> <a-box position="-2 2.5 5" width="0.5" height="5" depth="8" color="#3d2b1f"></a-box> <a-box position="3 2.5 1" width="6" height="5" depth="0.5" color="#3d2b1f"></a-box> <a-box position="0 5 5" width="12.5" height="0.2" depth="20.5" color="#222"></a-box>
+        <a-entity id="house" position="0 0 -10">
+            <a-box position="0 4 -8" width="20" height="8" depth="0.5" src="#wood" repeat="4 2"></a-box>
+            <a-box position="-10 4 0" rotation="0 90 0" width="16" height="8" depth="0.5" src="#wood"></a-box>
+            <a-box position="10 4 0" rotation="0 90 0" width="16" height="8" depth="0.5" src="#wood"></a-box>
+            <a-box position="0 8 0" width="21" height="0.5" depth="17" color="#222"></a-box>
+            
+            <a-box position="-3 3 0" width="0.5" height="6" depth="10" color="#333"></a-box>
+            
+            <a-box id="key" position="-6 0.5 -4" width="0.5" height="0.2" depth="0.5" color="yellow" 
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"></a-box>
+        </a-entity>
 
-        <a-entity id="rig" movement-controls="controls: joystick; speed: 0.22" position="0 0 10">
-            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true; touchEnabled: true">
-                <a-entity light="type: spot; intensity: 2; distance: 15; angle: 40; penumbra: 0.5" position="0 0 0"></a-entity>
-                <a-entity cursor="fuse: false" position="0 0 -1" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" material="color: white; shader: flat"></a-entity>
+        <a-entity id="rig" movement-controls="controls: joystick; speed: 0.25" position="0 0 15">
+            <a-entity id="camera" camera position="0 1.6 0" look-controls="touchEnabled: true">
+                
+                <a-cylinder position="-0.4 -0.4 -0.6" rotation="90 0 20" radius="0.08" height="0.8" color="#f1c27d"></a-cylinder>
+                <a-cylinder position="0.4 -0.4 -0.6" rotation="90 0 -20" radius="0.08" height="0.8" color="#f1c27d"></a-cylinder>
+
+                <a-entity id="playerLight" light="type: spot; intensity: 0; distance: 25; angle: 40" position="0 0 0"></a-entity>
             </a-entity>
         </a-entity>
 
-        <a-sphere id="freddy" src="#freddyFace" position="4 1.5 -2" radius="1.4">
-            <a-entity light="type: point; color: #ff0000; intensity: 1.5; distance: 5" position="0 0.5 1"></a-entity>
+        <a-sphere id="freddy" src="#freddyFace" position="6 1.5 -12" radius="1.4">
+            <a-entity light="type: point; color: red; intensity: 1.5; distance: 8" position="0 0 1"></a-entity>
         </a-sphere>
 
     </a-scene>
 
     <script>
-        // FREDDY'S SMART AI
-        const freddyEl = document.querySelector('#freddy');
-        const playerEl = document.querySelector('[camera]');
+        const rig = document.querySelector('#rig');
+        const cam = document.querySelector('#camera');
+        const fLight = document.querySelector('#playerLight');
+        const key = document.querySelector('#key');
+        const inventoryText = document.querySelector('#inventory');
 
+        let hasKey = false;
+        let isRunning = false;
+        let isCrouched = false;
+        let lightOn = false;
+
+        // Mobile Controls
+        function toggleRun() {
+            isRunning = !isRunning;
+            rig.setAttribute('movement-controls', 'speed', isRunning ? 0.5 : 0.25);
+            document.getElementById('runBtn').style.background = isRunning ? "rgba(255,165,0,0.6)" : "rgba(0,0,0,0.4)";
+        }
+
+        function toggleCrouch() {
+            isCrouched = !isCrouched;
+            cam.setAttribute('position', isCrouched ? '0 0.8 0' : '0 1.6 0');
+            document.getElementById('crouchBtn').style.background = isCrouched ? "rgba(0,255,0,0.4)" : "rgba(0,0,0,0.4)";
+        }
+
+        function toggleLight() {
+            lightOn = !lightOn;
+            fLight.setAttribute('light', 'intensity', lightOn ? 2.5 : 0);
+        }
+
+        function openAdmin() {
+            if(prompt("Admin Password:") === "1234") {
+                let p = prompt("1: Ghost, 2: Kill Freddy, 3: Win Now");
+                if(p==="1") rig.setAttribute('movement-controls', 'fly', true);
+                if(p==="2") document.querySelector('#freddy').setAttribute('visible', false);
+                if(p==="3") alert("Escape Successful!");
+            }
+        }
+
+        // Game Loop (AI and Collision)
         setInterval(() => {
-            const freddyPos = freddyEl.object3D.position;
-            const playerPos = playerEl.getWorldPosition(new THREE.Vector3());
+            const fPos = document.querySelector('#freddy').object3D.position;
+            const pPos = cam.getWorldPosition(new THREE.Vector3());
+            const speed = isCrouched ? 0.02 : 0.07;
 
-            // Speed: 0.06 is fast enough to be scary but playable
-            const speed = 0.06;
+            // Chase
+            if (fPos.x < pPos.x) fPos.x += speed; else fPos.x -= speed;
+            if (fPos.z < pPos.z) fPos.z += speed; else fPos.z -= speed;
 
-            // X-Axis Movement
-            if (freddyPos.x < playerPos.x) freddyPos.x += speed;
-            else freddyPos.x -= speed;
+            // Catch
+            if (fPos.distanceTo(pPos) < 2) {
+                alert("THE NEIGHBOR CAUGHT YOU!");
+                location.reload();
+            }
 
-            // Z-Axis Movement
-            if (freddyPos.z < playerPos.z) freddyPos.z += speed;
-            else freddyPos.z -= speed;
-
-            // Rotate Freddy to face the player
-            freddyEl.object3D.lookAt(playerPos.x, freddyPos.y, playerPos.z);
-
-            // JUMPSCARE & GAME OVER
-            let distance = freddyPos.distanceTo(playerPos);
-            if (distance < 2.0) {
-                // Trigger a red flash and restart
-                document.body.style.backgroundColor = "red";
-                alert("FREDDY CAUGHT YOU!");
-                location.reload(); 
+            // Key Pickup
+            const kPos = key.object3D.position;
+            if (!hasKey && pPos.distanceTo(kPos) < 3) {
+                hasKey = true;
+                key.setAttribute('visible', 'false');
+                inventoryText.innerText = "Items: Basement Key";
+                alert("You found the key! Now get out!");
             }
         }, 50);
-
-        // EXTRA CODE: Force Landscape and Anti-VR Button removal
-        window.addEventListener('click', function() {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            }
-        });
     </script>
 </body>
 </html>
